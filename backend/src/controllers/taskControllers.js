@@ -2,10 +2,24 @@ import Task from '../models/Task.js'
 
 export const getAllTasks = async (req, res) =>{
     try {
-        // .find là để lấy toàn bộ dữ liệu từ collection task
-        //sort({createAt: -1}) => sắp xếp từ dưới lên
-        const tasks = await Task.find().sort({createAt: -1});
-        res.status(200).json(tasks);
+        //Giúp đếm số lượng nhiệm vụ có status bằng active 
+        //Tạo 1 biến để lưu kết quả
+        const result = await Task.aggregate([
+            {
+                $facet:{
+                    tasks: [{$sort: {createdAt: -1}}],
+                    activeCount: [{$match: {status:"active"}},{$count:"count"}],
+                    completeCount: [{$match: {status:"complete"}},{$count:"count"}]
+                }
+            }
+        ]);
+
+        //Lấy các nhiệm vụ sau khi mình sắp xếp 
+        const tasks = result[0].tasks;
+        const activeCount = result[0].activeCount[0]?.count || 0;
+        const completeCount = result[0].completeCount[0]?.count || 0;
+
+        res.status(200).json({ tasks, activeCount, completeCount });
     } catch (error) {
         console.error("Lỗi khi gọi getAllTasks", error);
         res.status(500).json({message: "Lỗi hệ thống"})
