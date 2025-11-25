@@ -7,7 +7,7 @@ import TaskList from '@/components/TaskList'
 import TaskListPagination from '@/components/TaskListPagination'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import axios from 'axios'
+import api from '@/lib/axios'
 
 const HomePage = () => {
   //Lưu danh sách nhiệm vụ từ backend về
@@ -30,7 +30,7 @@ const HomePage = () => {
   const fetchTasks = async (req, res) => {
     try {
       // Gọi API bằng axios và truyền vào URL của backend
-      const res = await axios.get("http://localhost:5001/api/tasks")
+      const res = await api.get("/tasks");
       setTaskBuffer(res.data.tasks);
       setActiveTaskCount(res.data.activeCount);
       setCompleteTaskCount(res.data.completeCount);
@@ -41,13 +41,18 @@ const HomePage = () => {
     }
   }
 
+  const handleTaskChanged = () => {
+    fetchTasks();
+  }
+
+
   //Biến để lưu danh sách nhiệm vụ lọc
   const filteredTasks = taskBuffer.filter((task)=>{
     switch (filter) {
       case "active":
         return task.status === 'active';
       case "completed":
-        return task.status === 'completed';
+        return task.status === 'complete';
       default:
         return true;
     }
@@ -75,7 +80,7 @@ const HomePage = () => {
       <Headers/>
 
       {/* Tạo nhiệm vụ */}
-      <AddTask/>
+      <AddTask handlerNewTaskTitleAdded={handleTaskChanged}/>
 
       {/* Thống kê và bộ lọc */}
       <StatAndFiller
