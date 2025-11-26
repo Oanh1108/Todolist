@@ -5,9 +5,9 @@ import Headers from '@/components/Headers'
 import StatAndFiller from '@/components/StatAndFilter'
 import TaskList from '@/components/TaskList'
 import TaskListPagination from '@/components/TaskListPagination'
+import api from '@/lib/axios'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import api from '@/lib/axios'
 
 const HomePage = () => {
   //Lưu danh sách nhiệm vụ từ backend về
@@ -41,13 +41,14 @@ const HomePage = () => {
     }
   }
 
-  const handleTaskChanged = () => {
+  const handleNewChanged = () => {
     fetchTasks();
   }
 
 
+
   //Biến để lưu danh sách nhiệm vụ lọc
-  const filteredTasks = taskBuffer.filter((task)=>{
+  const filteredTasks = (taskBuffer).filter((task)=>{
     switch (filter) {
       case "active":
         return task.status === 'active';
@@ -80,7 +81,7 @@ const HomePage = () => {
       <Headers/>
 
       {/* Tạo nhiệm vụ */}
-      <AddTask handlerNewTaskTitleAdded={handleTaskChanged}/>
+      <AddTask handlerNewTaskAdded={handleNewChanged}/>
 
       {/* Thống kê và bộ lọc */}
       <StatAndFiller
