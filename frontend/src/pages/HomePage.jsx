@@ -20,17 +20,20 @@ const HomePage = () => {
 
   //Lưu filter hiện tại
   const [filter, setFilter] = useState("all");
+
+  //Quản lý giá trị hiện tại mà người dùng chọn trong comboBox
+  const [dateQuery, setDateQuery] = useState('today');
   
   useEffect(()=>{
     fetchTasks();
-  },[])
+  },[dateQuery]);
 
   //Logic
   //Gọi API và lấy danh sách nhiệm vụ
   const fetchTasks = async (req, res) => {
     try {
       // Gọi API bằng axios và truyền vào URL của backend
-      const res = await api.get("/tasks");
+      const res = await api.get(`/tasks?filter=${dateQuery}`);
       setTaskBuffer(res.data.tasks);
       setActiveTaskCount(res.data.activeCount);
       setCompleteTaskCount(res.data.completeCount);
@@ -41,7 +44,7 @@ const HomePage = () => {
     }
   }
 
-  const handleNewChanged = () => {
+  const handleTaskChanged = () => {
     fetchTasks();
   }
 
@@ -81,7 +84,7 @@ const HomePage = () => {
       <Headers/>
 
       {/* Tạo nhiệm vụ */}
-      <AddTask handlerNewTaskAdded={handleNewChanged}/>
+      <AddTask handlerNewTaskAdded={handleTaskChanged}/>
 
       {/* Thống kê và bộ lọc */}
       <StatAndFiller
@@ -91,12 +94,14 @@ const HomePage = () => {
       />
 
       {/* Danh sách nhiệm vụ */}
-      <TaskList filteredTasks={filteredTasks} filter={filter}/>
+      <TaskList filteredTasks={filteredTasks} filter={filter}
+        handleTaskChanged={handleTaskChanged}
+      />
 
       {/* Phân trang và lọc theo ngày */}
       <div className='flex flex-col items-center justify-between gap-6 sm:flex-row'>
       <TaskListPagination/>
-      <DateTimeFilter/>
+      <DateTimeFilter dateQuery={dateQuery} setDateQuery={setDateQuery}/>
       </div>
 
       {/* Chân trang */}
